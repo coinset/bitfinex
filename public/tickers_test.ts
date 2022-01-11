@@ -21,7 +21,7 @@ const baseEquality = {
 };
 
 test("fetchTickers", async () => {
-  await expect(fetchTickers({ symbols: ["ALL"] })).resolves.toEqual(
+  await expect(fetchTickers({ symbols: "ALL" })).resolves.toEqual(
     anyArray(anyOf([{
       symbol: anyString((v) => v.startsWith("t")),
       type: "t",

@@ -2,7 +2,7 @@ import { jsonFetch } from "./_utils.ts";
 import { BASE_URL } from "./constants.ts";
 
 export type TickersOptions = {
-  symbols: "ALL"[];
+  symbols: `${"f" | "t"}${string}`[] | "ALL";
 };
 
 type TSymbolResponse = [
@@ -105,20 +105,23 @@ type BaseResponse = {
 };
 
 export type TickersResponse = (
-  | ({
-    symbol: `t${string}`;
-    type: "t";
-    dailyChangeRelative: number;
-  } & BaseResponse)
-  | ({
-    symbol: `f${string}`;
-    type: "f";
-    frr: number;
-    bidPeriod: number;
-    askPeriod: number;
-    frrAmountAvailable: number;
-    dailyChangePerc: number;
-  } & BaseResponse)
+  & BaseResponse
+  & (
+    | ({
+      symbol: `t${string}`;
+      type: "t";
+      dailyChangeRelative: number;
+    })
+    | ({
+      symbol: `f${string}`;
+      type: "f";
+      frr: number;
+      bidPeriod: number;
+      askPeriod: number;
+      frrAmountAvailable: number;
+      dailyChangePerc: number;
+    })
+  )
 )[];
 
 export async function fetchTickers(
@@ -126,7 +129,8 @@ export async function fetchTickers(
 ): Promise<TickersResponse> {
   const url = new URL("tickers", BASE_URL);
 
-  url.searchParams.set("symbols", symbols.join(","));
+  const parameter = Array.isArray(symbols) ? symbols.join(",") : symbols;
+  url.searchParams.set("symbols", parameter);
 
   const response = await jsonFetch<(TSymbolResponse | FSymbolResponse)[]>(
     url,
